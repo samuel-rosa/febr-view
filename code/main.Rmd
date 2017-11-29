@@ -1,0 +1,72 @@
+---
+title: ""
+author: ""
+date: ""
+output: html_document
+---
+
+```{r, eval=FALSE, echo=FALSE}
+rm(list = ls())
+
+# Processar arquivo Rmd e gerar saída em HTML
+rmarkdown::render('main.Rmd', output_file = 'view.html', encoding = 'UTF-8', output_dir = "../docs")
+
+# Editar a linha 92 do arquivo HTML, substituindo
+con = '../docs/view.html'
+index <- readLines(con = con)
+if (grepl(pattern = '940px', x = index[92])) {
+  index[92] <- gsub(pattern = '940px', replacement = '100%', index[92]) 
+  writeLines(text = index, con = con)
+} else {
+  cat('pattern not found')
+}
+```
+
+```{r setup, include=FALSE}
+source("helper.R")
+library(knitr)
+library(glue)
+library(googlesheets)
+library(magrittr)
+library(readr)
+library(sp)
+library(mapview)
+opts_chunk$set(
+  echo = FALSE, message = FALSE, warning = FALSE, cache = FALSE, #fig.width = 9, fig.height = 9, 
+  results = 'hide', out.width = '100%', out.height = '100vh')
+```
+
+```{r keys}
+sheets_keys <- 
+  gs_key("18yP9Hpp8oMdbGsf6cVu4vkDv-Dj-j5gjEFgEXN-5H-Q") %>% 
+  gs_read_csv()
+```
+
+```{r metadata}
+idx <- 1:nrow(sheets_keys)
+# idx <- nrow(sheets_keys)
+# idx <- 5
+lapply(idx, function (i) {
+  x <- unlist(sheets_keys[i, ])
+  createSiteMetadata(
+    n = x["ctb"], dataset = x["dataset"], observation = x["observacao"], layer = x["camada"], 
+    metadata = x["metadado"], sharing = x["compartilha"])
+})
+```
+
+```{r process}
+# Retornar o nome dos arquivos contendo as coordenadas das contribuições. Por padrão, o nome dos arquivos 
+# inicia com 'ctb', termina com 'csv' e possui no seu interior 'coords'.
+febr <- list.files("../data", pattern = "[^ctb][^.coords][csv$]")
+febr <- glue("../data/{febr}")
+febr <- lapply(febr, read_csv)
+febr <- do.call(rbind, febr)
+coordinates(febr) <- c("coord_x", "coord_y")
+proj4string(febr) <- CRS("+init=epsg:4326")
+```
+
+```{r mapview, results='asis'}
+mapview(
+  febr, label = febr$observacao_id, popup = glue('{febr$sharing}<br>{febr$mailto}', sep = ""),
+  col.regions = "firebrick1", lwd = 1, col = "ivory")@map
+```
