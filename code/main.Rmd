@@ -10,6 +10,8 @@ library(glue)
 library(googlesheets)
 library(magrittr)
 library(readr)
+library(stringr)
+library(dplyr)
 ```
 
 # Render site
@@ -42,7 +44,7 @@ if (class(sheets_keys) == "try-error") {
 }
 ```
 
-```{r metadata, eval=FALSE}
+```{r metadata}
 idx <- 1:nrow(sheets_keys)
 # idx <- nrow(sheets_keys)
 idx <- 78

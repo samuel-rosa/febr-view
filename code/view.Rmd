@@ -15,6 +15,7 @@ library(readr)
 library(knitr)
 library(sp)
 library(mapview)
+library(dplyr)
 opts_chunk$set(
   echo = FALSE, message = FALSE, warning = FALSE, cache = FALSE, #fig.width = 9, fig.height = 9, 
   results = 'hide', out.width = '100%', out.height = '100vh')
