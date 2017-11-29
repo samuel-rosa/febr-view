@@ -23,6 +23,7 @@ if (grepl(pattern = '940px', x = index[92])) {
 ```
 
 ```{r setup, include=FALSE}
+rm(list = ls())
 source("helper.R")
 library(knitr)
 library(glue)
@@ -42,10 +43,10 @@ sheets_keys <-
   gs_read_csv()
 ```
 
-```{r metadata}
+```{r metadata, eval=FALSE}
 idx <- 1:nrow(sheets_keys)
 # idx <- nrow(sheets_keys)
-# idx <- 5
+idx <- 78
 lapply(idx, function (i) {
   x <- unlist(sheets_keys[i, ])
   createSiteMetadata(
@@ -68,5 +69,5 @@ proj4string(febr) <- CRS("+init=epsg:4326")
 ```{r mapview, results='asis'}
 mapview(
   febr, label = febr$observacao_id, popup = glue('{febr$sharing}<br>{febr$mailto}', sep = ""),
-  col.regions = "firebrick1", lwd = 1, col = "ivory")@map
+  col.regions = "firebrick1", lwd = 1, col = "ivory")
 ```

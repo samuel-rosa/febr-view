@@ -77,18 +77,18 @@ createSiteMetadata <-
     
     # Identificar linhas e colunas contendo dados de ferro
     # Gerar metadados apenas se realmente houver dados de ferro
-    id_col <- colnames(db)[grep("^fe_", colnames(db))]
-    if (length(id_col) > 0) {
-      idx <- which(!is.na(db[, id_col]), arr.ind = TRUE)
-      if (is.null(dim(idx))) {
-        id_row <- idx
-      } else if (prod(dim(idx)) == 0) {
-        cat("Não há dados de ferro")
-        return (NULL)
-      } else {
-        id_col <- id_col[unique(idx[, 2])]
-        id_row <- unique(idx[, 1])
-      }
+    # id_col <- colnames(db)[grep("^fe_", colnames(db))]
+    # if (length(id_col) > 0) {
+      # idx <- which(!is.na(db[, id_col]), arr.ind = TRUE)
+      # if (is.null(dim(idx))) {
+        # id_row <- idx
+      # } else if (prod(dim(idx)) == 0) {
+        # cat("Não há dados de ferro")
+        # return (NULL)
+      # } else {
+        # id_col <- id_col[unique(idx[, 2])]
+        # id_row <- unique(idx[, 1])
+      # }
       
       # Preparar nome dos autores. Para conjuntos de dados com múltiplos autores, apenas os dois primeiros
       # são apresentados.
@@ -105,8 +105,10 @@ createSiteMetadata <-
         Instituição =
           stringr::str_split_fixed(dataset[dataset$item == "organizacao_nome", 2], ";", n = Inf)[1],
         Título = dataset[[2]][dataset$item == "dataset_titulo"],
-        UF = levels(as.factor(db[id_row, "estado_id"])),
-        Contribuição = summary(as.factor(na.omit(db[id_row, "estado_id"]))),
+        # UF = levels(as.factor(db[id_row, "estado_id"])),
+        UF = levels(as.factor(db[, "estado_id"])),
+        # Contribuição = summary(as.factor(na.omit(db[id_row, "estado_id"]))),
+        Contribuição = summary(as.factor(na.omit(db[, "estado_id"]))),
         # Por padrão, se mais de uma área do conhecimento é especificada, então assume-se que o trabalho é
         # do tipo EDAFOLÓGICO.
         Tipo = ifelse(
@@ -121,7 +123,7 @@ createSiteMetadata <-
       file <- glue('../data/{n}.csv')
       write.csv(ctb, file = file, fileEncoding = "UTF-8")
       
-    } else {
-      cat("Não há dados de ferro")
-    }
+    # } else {
+      # cat("Não há dados de ferro")
+    # }
   }
