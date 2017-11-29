@@ -38,9 +38,14 @@ opts_chunk$set(
 ```
 
 ```{r keys}
-sheets_keys <- 
-  gs_key("18yP9Hpp8oMdbGsf6cVu4vkDv-Dj-j5gjEFgEXN-5H-Q") %>% 
-  gs_read_csv()
+key <- "18yP9Hpp8oMdbGsf6cVu4vkDv-Dj-j5gjEFgEXN-5H-Q"
+sheets_keys <- try(gs_key(key) %>% gs_read_csv(), TRUE)
+if (class(sheets_keys) == "try-error") {
+  url <- glue("https://docs.google.com/spreadsheets/d/{key}/export?format=csv")
+  tempfile <- tempfile(fileext = "cvs")
+  download.file(url, destfile = tempfile)
+  sheets_keys <- read_csv(tempfile)
+}
 ```
 
 ```{r metadata, eval=FALSE}
