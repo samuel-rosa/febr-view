@@ -32,7 +32,7 @@ proj4string(febr) <- CRS("+init=epsg:4326")
 ```
 
 ```{r mapview, results='asis'}
-logo <- '/home/alessandro/projects/web/febr-view/docs/logo.svg'
+logo <- 'logo.svg'
 mapview(
   febr, label = febr$observacao_id, popup = glue('{febr$sharing}<br>{febr$mailto}', sep = ""),
   col.regions = "firebrick1", lwd = 1, col = "ivory") %>% 
