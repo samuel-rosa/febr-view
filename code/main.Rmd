@@ -2,18 +2,6 @@
 output: html_document
 ---
 
-```{r}
-rm(list = ls())
-source("helper.R")
-library(knitr)
-library(glue)
-library(googlesheets)
-library(magrittr)
-library(readr)
-library(stringr)
-library(dplyr)
-```
-
 # Render site
 
 ```{r render}
@@ -21,37 +9,36 @@ library(dplyr)
 rmarkdown::render('view.Rmd', encoding = 'UTF-8', output_dir = "../docs")
 
 # Editar a linha 92 do arquivo HTML, substituindo
-con = '../docs/view.html'
-index <- readLines(con = con)
-if (grepl(pattern = '940px', x = index[92])) {
-  index[92] <- gsub(pattern = '940px', replacement = '100%', index[92]) 
-  writeLines(text = index, con = con)
-} else {
-  cat('pattern not found')
+file <- '../docs/view.html'
+html <- readLines(con = file)
+for (i in seq(length(html))) {
+  html[i] <- 
+    gsub(pattern = '940px', replacement = '100%', x = html[i], fixed = TRUE)
 }
+writeLines(text = html, con = file)
 ```
 
 # Prepare site metadata
 
 ```{r keys}
-key <- "18yP9Hpp8oMdbGsf6cVu4vkDv-Dj-j5gjEFgEXN-5H-Q"
-sheets_keys <- try(gs_key(key) %>% gs_read_csv(), TRUE)
-if (class(sheets_keys) == "try-error") {
-  url <- glue("https://docs.google.com/spreadsheets/d/{key}/export?format=csv")
-  tempfile <- tempfile(fileext = "cvs")
-  download.file(url, destfile = tempfile)
-  sheets_keys <- read_csv(tempfile)
-}
+# key <- "18yP9Hpp8oMdbGsf6cVu4vkDv-Dj-j5gjEFgEXN-5H-Q"
+# sheets_keys <- try(gs_key(key) %>% gs_read_csv(), TRUE)
+# if (class(sheets_keys) == "try-error") {
+#   url <- glue("https://docs.google.com/spreadsheets/d/{key}/export?format=csv")
+#   tempfile <- tempfile(fileext = "cvs")
+#   download.file(url, destfile = tempfile)
+#   sheets_keys <- read_csv(tempfile)
+# }
 ```
 
 ```{r metadata}
-idx <- 1:nrow(sheets_keys)
-# idx <- nrow(sheets_keys)
-idx <- 78
-lapply(idx, function (i) {
-  x <- unlist(sheets_keys[i, ])
-  createSiteMetadata(
-    n = x["ctb"], dataset = x["dataset"], observation = x["observacao"], layer = x["camada"], 
-    metadata = x["metadado"], sharing = x["compartilha"])
-})
+# idx <- 1:nrow(sheets_keys)
+# # idx <- nrow(sheets_keys)
+# idx <- 78
+# lapply(idx, function (i) {
+#   x <- unlist(sheets_keys[i, ])
+#   createSiteMetadata(
+#     n = x["ctb"], dataset = x["dataset"], observation = x["observacao"], layer = x["camada"], 
+#     metadata = x["metadado"], sharing = x["compartilha"])
+# })
 ```
