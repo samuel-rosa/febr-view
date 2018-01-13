@@ -3,15 +3,10 @@ output: html_document
 ---
 
 ```{r, include=FALSE}
-# source("helper.R")
-# library(glue)
-# library(googlesheets)
 library(magrittr)
-# library(readr)
 library(knitr)
 library(sp)
 library(mapview)
-# library(dplyr)
 opts_chunk$set(
   echo = FALSE, message = FALSE, warning = FALSE, cache = FALSE, #fig.width = 9, fig.height = 9, 
   results = 'hide', out.width = '100%', out.height = '100vh')
@@ -34,7 +29,6 @@ febr$observacao_id <- glue("{febr$observacao_id}@{febr$id}")
 febr$id <- glue('<a href="http://www.ufsm.br/febr/catalog/{febr$id}.html" target="_blank">Mais informações</a>')
 ```
 
-
 ```{r}
 coordinates(febr) <- c("coord_x", "coord_y")
 proj4string(febr) <- CRS("+init=epsg:4674")
@@ -46,39 +40,4 @@ mapview(
   febr, label = febr$observacao_id, popup = glue('{febr$id}', sep = ""), 
   col.regions = "firebrick1", lwd = 1, col = "ivory") %>% 
   addLogo(img = logo, url = "http://www.ufsm.br/febr/")
-```
-
-```{r setup, include=FALSE}
-# rm(list = ls())
-# source("helper.R")
-# library(glue)
-# library(googlesheets)
-# library(magrittr)
-# library(readr)
-# library(knitr)
-# library(sp)
-# library(mapview)
-# library(dplyr)
-# opts_chunk$set(
-#   echo = FALSE, message = FALSE, warning = FALSE, cache = FALSE, #fig.width = 9, fig.height = 9, 
-#   results = 'hide', out.width = '100%', out.height = '100vh')
-```
-
-```{r process}
-# Retornar o nome dos arquivos contendo as coordenadas das contribuições. Por padrão, o nome dos arquivos 
-# inicia com 'ctb', termina com 'csv' e possui no seu interior 'coords'.
-# febr <- list.files("../data", pattern = "[^ctb][^.coords][csv$]")
-# febr <- glue("../data/{febr}")
-# febr <- lapply(febr, read_csv)
-# febr <- do.call(rbind, febr)
-# coordinates(febr) <- c("coord_x", "coord_y")
-# proj4string(febr) <- CRS("+init=epsg:4326")
-```
-
-```{r mapview, results='asis'}
-# logo <- 'logo.svg'
-# mapview(
-#   febr, label = febr$observacao_id, popup = glue('{febr$sharing}<br>{febr$mailto}', sep = ""),
-#   col.regions = "firebrick1", lwd = 1, col = "ivory") %>% 
-#   addLogo(img = logo, url = "http://www.ufsm.br/febr/")
 ```
