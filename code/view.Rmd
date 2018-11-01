@@ -16,8 +16,9 @@ opts_chunk$set(
 ```
 
 ```{r}
-load('../data/obs.rda')
-load("../data/sheets_keys.rda")
+# Carrega os dados do repositório-irmão febr-data
+load('../../febr-data/data/obs.rda')
+load("../../febr-data/data/febr-chaves.rda")
 ```
 
 ```{r}
