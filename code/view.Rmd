@@ -9,6 +9,7 @@ library(sp)
 library(mapview)
 library(glue)
 library(leaflet)
+library(raster)
 opts_chunk$set(
   echo = FALSE, message = FALSE, warning = FALSE, cache = FALSE, #fig.width = 9, fig.height = 9, 
   results = 'hide', out.width = '100%', out.height = '100vh')
@@ -28,7 +29,7 @@ febr$observacao_id <- glue("{febr$observacao_id}@{febr$id}")
 ```
 
 ```{r}
-febr$id <- glue('<a href="http://www.ufsm.br/febr/catalog/{febr$id}.html" target="_blank">Mais informações</a>')
+febr$id <- glue('<a href="http://www.ufsm.br/febr/catalog/{febr$id}.html" target="_blank">Mais informações?</a>')
 ```
 
 ```{r}
@@ -36,20 +37,21 @@ coordinates(febr) <- c("coord_x", "coord_y")
 proj4string(febr) <- CRS("+init=epsg:4674")
 ```
 
-```{r, results='asis', eval=TRUE}
+```{r, results='asis', eval=FALSE}
 logo <- 'logo.svg'
 mapview(
-  febr, label = febr$observacao_id, popup = glue('{febr$id}', sep = ""), 
-  map.types = c("CartoDB.Positron", "Esri.WorldImagery", "Esri.WorldTopoMap"),
+  febr, label = febr$observacao_id, popup = glue('{febr$id}', sep = ""),
+  map.types = c("Esri.WorldTopoMap", "CartoDB.Positron", "Esri.WorldImagery"),
   col.regions = "firebrick1", lwd = 1, col = "ivory") %>% 
   addLogo(img = logo, url = "http://www.ufsm.br/febr/")
 ```
 
-```{r, results='asis', eval=FALSE}
+```{r, results='asis', eval=TRUE}
+logo <- 'logo.svg'
 leaflet() %>%
+  addProviderTiles("Esri.WorldTopoMap", group = "Esri.WorldTopoMap") %>% 
   addProviderTiles("CartoDB.Positron", group = "CartoDB.Positron") %>% 
   addProviderTiles("Esri.WorldImagery", group = "Esri.WorldImagery") %>% 
-  addProviderTiles("Esri.WorldTopoMap", group = "Esri.WorldTopoMap") %>% 
   addAwesomeMarkers(
     lng = febr$coord_x,
     lat = febr$coord_y,
@@ -58,7 +60,9 @@ leaflet() %>%
     clusterOptions = markerClusterOptions(),
     label = febr$observacao_id) %>%
   addLayersControl(
-    baseGroups = c("CartoDB.Positron", "Esri.WorldImagery", "Esri.WorldTopoMap"),
+    baseGroups = c("Esri.WorldTopoMap", "CartoDB.Positron", "Esri.WorldImagery"),
     options = layersControlOptions(collapsed = FALSE)) %>% 
+  addLogo(img = logo, url = "http://www.ufsm.br/febr/") %>% 
+  addHomeButton(ext = extent(febr), layer.name = "Ver tudo", position = "bottomleft") %>% 
   addMiniMap()
 ```
