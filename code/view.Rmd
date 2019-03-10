@@ -5,11 +5,6 @@ output: html_document
 ```{r, include=FALSE}
 library(magrittr)
 library(knitr)
-library(sp)
-library(mapview)
-library(glue)
-library(leaflet)
-library(raster)
 opts_chunk$set(
   echo = FALSE, message = FALSE, warning = FALSE, cache = FALSE, #fig.width = 9, fig.height = 9, 
   results = 'hide', out.width = '100%', out.height = '100vh')
@@ -17,8 +12,8 @@ opts_chunk$set(
 
 ```{r}
 # Carrega os dados do repositório-irmão febr-data
-load('../../febr-data/data/obs.rda')
-load("../../febr-data/data/febr-chaves.rda")
+load('../../febr-data/data/r/obs.rda')
+load("../../febr-data/data/r/febr-chaves.rda")
 ```
 
 ```{r}
@@ -26,44 +21,45 @@ obs <- lapply(1:nrow(sheets_keys), function (i)
   data.frame(
     obs[[i]][c("observacao_id", "coord_x", "coord_y")], id = sheets_keys$ctb[i], stringsAsFactors = FALSE))
 febr <- do.call(rbind, obs) %>% na.exclude()
-febr$observacao_id <- glue("{febr$observacao_id}@{febr$id}")
+febr$observacao_id <- glue::glue("{febr$observacao_id}@{febr$id}")
 ```
 
 ```{r}
-febr$id <- glue('<a href="http://www.ufsm.br/febr/catalog/{febr$id}.html" target="_blank">Mais informações?</a>')
+febr$id <- 
+  glue::glue('<a href="http://www.ufsm.br/febr/catalog/{febr$id}.html" target="_blank">Mais informações?</a>')
 ```
 
 ```{r}
-coordinates(febr) <- c("coord_x", "coord_y")
-proj4string(febr) <- CRS("+init=epsg:4674")
+sp::coordinates(febr) <- c("coord_x", "coord_y")
+sp::proj4string(febr) <- sp::CRS("+init=epsg:4674")
 ```
 
 ```{r, results='asis', eval=FALSE}
 logo <- 'logo.svg'
-mapview(
-  febr, label = febr$observacao_id, popup = glue('{febr$id}', sep = ""),
+mapview::mapview(
+  febr, label = febr$observacao_id, popup = glue::glue('{febr$id}', sep = ""),
   map.types = c("Esri.WorldTopoMap", "CartoDB.Positron", "Esri.WorldImagery"),
   col.regions = "firebrick1", lwd = 1, col = "ivory") %>% 
-  addLogo(img = logo, url = "http://www.ufsm.br/febr/")
+  mapview::addLogo(img = logo, url = "http://www.ufsm.br/febr/")
 ```
 
 ```{r, results='asis', eval=TRUE}
 logo <- 'logo.svg'
-leaflet() %>%
-  addProviderTiles("Esri.WorldTopoMap", group = "Esri.WorldTopoMap") %>% 
-  addProviderTiles("CartoDB.Positron", group = "CartoDB.Positron") %>% 
-  addProviderTiles("Esri.WorldImagery", group = "Esri.WorldImagery") %>% 
-  addAwesomeMarkers(
+leaflet::leaflet() %>%
+  leaflet::addProviderTiles("Esri.WorldTopoMap", group = "Esri.WorldTopoMap") %>% 
+  leaflet::addProviderTiles("CartoDB.Positron", group = "CartoDB.Positron") %>% 
+  leaflet::addProviderTiles("Esri.WorldImagery", group = "Esri.WorldImagery") %>% 
+  leaflet::addAwesomeMarkers(
     lng = febr$coord_x,
     lat = febr$coord_y,
-    icon = awesomeIcons(icon = "info-sign", markerColor = "#b22222", iconColor = "#fffff0"),
+    icon = leaflet::awesomeIcons(icon = "info-sign", markerColor = "#b22222", iconColor = "#fffff0"),
     popup = febr$id,
-    clusterOptions = markerClusterOptions(),
+    clusterOptions = leaflet::markerClusterOptions(),
     label = febr$observacao_id) %>%
-  addLayersControl(
+  leaflet::addLayersControl(
     baseGroups = c("Esri.WorldTopoMap", "CartoDB.Positron", "Esri.WorldImagery"),
-    options = layersControlOptions(collapsed = FALSE)) %>% 
-  addLogo(img = logo, url = "http://www.ufsm.br/febr/") %>% 
-  addHomeButton(ext = extent(febr), layer.name = "Ver tudo", position = "bottomleft") %>% 
-  addMiniMap()
+    options = leaflet::layersControlOptions(collapsed = FALSE)) %>% 
+  mapview::addLogo(img = logo, url = "http://www.ufsm.br/febr/") %>% 
+  mapview::addHomeButton(ext = raster::extent(febr), layer.name = "Ver tudo", position = "bottomleft") %>% 
+  leaflet::addMiniMap()
 ```
