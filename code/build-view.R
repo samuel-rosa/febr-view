@@ -9,3 +9,9 @@ for (i in seq(length(html))) {
     gsub(pattern = '940px', replacement = '100%', x = html[i], fixed = TRUE)
 }
 writeLines(text = html, con = file)
+
+# Open local catalog in browser
+browseURL("docs/view.html")
+
+# Open server portal
+browseURL("http://www.suporte.cpd.ufsm.br/newftp/")
