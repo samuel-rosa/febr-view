@@ -8,6 +8,7 @@ for (i in seq(length(html))) {
   html[i] <- 
     gsub(pattern = '940px', replacement = '100%', x = html[i], fixed = TRUE)
 }
+html <- sub("<title>view.utf8.md</title>", "<title>febr – Visualização Espacial</title>", html)
 writeLines(text = html, con = file)
 
 # Open local catalog in browser

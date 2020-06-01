@@ -20,7 +20,7 @@ load("../../febr-data/data/r/febr-chaves.rda")
 obs <- lapply(1:nrow(sheets_keys), function (i) 
   data.frame(
     obs[[i]][c("observacao_id", "coord_x", "coord_y")], id = sheets_keys$ctb[i], stringsAsFactors = FALSE))
-febr <- do.call(rbind, obs) %>% na.exclude()
+febr <- na.exclude(do.call(rbind, obs))
 febr$observacao_id <- glue::glue("{febr$observacao_id}@{febr$id}")
 ```
 
@@ -29,18 +29,17 @@ febr$id <-
   glue::glue('<a href="http://www.ufsm.br/febr/catalog/{febr$id}.html" target="_blank">Mais informações?</a>')
 ```
 
-```{r}
-sp::coordinates(febr) <- c("coord_x", "coord_y")
-sp::proj4string(febr) <- sp::CRS("+init=epsg:4674")
+```{r, eval=FALSE}
+# febr <- sf::st_as_sf(febr, coords = c("coord_x", "coord_y"), crs = 4674)
 ```
 
 ```{r, results='asis', eval=FALSE}
-logo <- 'logo.svg'
-mapview::mapview(
-  febr, label = febr$observacao_id, popup = glue::glue('{febr$id}', sep = ""),
-  map.types = c("Esri.WorldTopoMap", "CartoDB.Positron", "Esri.WorldImagery"),
-  col.regions = "firebrick1", lwd = 1, col = "ivory") %>% 
-  mapview::addLogo(img = logo, url = "http://www.ufsm.br/febr/")
+# logo <- 'logo.svg'
+# mapview::mapview(
+#   febr, label = febr$observacao_id, popup = glue::glue('{febr$id}', sep = ""),
+#   map.types = c("Esri.WorldTopoMap", "CartoDB.Positron", "Esri.WorldImagery"),
+#   col.regions = "firebrick1", lwd = 1, col = "ivory") %>% 
+#   mapview::addLogo(img = logo, url = "http://www.ufsm.br/febr/")
 ```
 
 ```{r, results='asis', eval=TRUE}
@@ -60,6 +59,8 @@ leaflet::leaflet() %>%
     baseGroups = c("Esri.WorldTopoMap", "CartoDB.Positron", "Esri.WorldImagery"),
     options = leaflet::layersControlOptions(collapsed = FALSE)) %>% 
   mapview::addLogo(img = logo, url = "http://www.ufsm.br/febr/") %>% 
-  mapview::addHomeButton(ext = raster::extent(febr), layer.name = "Ver tudo", position = "bottomleft") %>% 
+  mapview::addHomeButton(
+    ext = raster::extent(sf::st_as_sf(febr, coords = c("coord_x", "coord_y"), crs = 4674)), 
+    layer.name = "Ver tudo", position = "bottomleft") %>%
   leaflet::addMiniMap()
 ```
